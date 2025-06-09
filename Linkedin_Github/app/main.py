@@ -13,7 +13,7 @@ load_dotenv() # Load environment variables (API keys)
 
 # Configure Streamlit page settings
 st.set_page_config(page_title="LinkedIn Analyzer", layout="centered") 
-st.title("🔍 LinkedIn Analyzer with Memory")
+st.title("🔍 LinkedIn Analyzer")
 
 # Initialize session state if not exists
 if "state" not in st.session_state:
