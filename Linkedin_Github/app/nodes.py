@@ -2,8 +2,8 @@
 LangGraph nodes to handle chat interactions and memory summarization.
 """
 
-from app.prompts import build_profile_analysis_prompt
-from app.utils import get_profile_summary
+from prompts import build_profile_analysis_prompt
+from utils import get_profile_summary
 from langchain_openai import ChatOpenAI
 
 def chat_node(state: dict) -> dict:
