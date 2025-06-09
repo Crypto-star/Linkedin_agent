@@ -5,8 +5,8 @@ Streamlit application for analyzing LinkedIn profiles using GPT with memory.
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from app.utils import scrape_linkedin_profile, get_user_greeting
-from app.nodes import chat_node, summarizer_node
+from utils import scrape_linkedin_profile, get_user_greeting
+from nodes import chat_node, summarizer_node
 from langgraph.graph import StateGraph, END
 
 load_dotenv() # Load environment variables (API keys)
