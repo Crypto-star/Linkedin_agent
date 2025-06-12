@@ -18,7 +18,7 @@ def chat_node(state: dict) -> dict:
     summary = state.get("summary", "")
     user_intent = detect_user_intent(messages)
 
-    llm = ChatOpenAI(model_name="gpt-4o-mini")
+    llm = ChatOpenAI(model_name="gpt-4o")
 
     prompt = build_profile_analysis_prompt(
         profile_context=get_detailed_profile_context(profile),
