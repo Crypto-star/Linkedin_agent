@@ -1,6 +1,10 @@
 """
 LangGraph nodes to handle chat interactions and memory summarization.
 """
+from prompts import build_profile_analysis_prompt
+from utils import get_detailed_profile_context
+from langchain_openai import ChatOpenAI
+
 
 def detect_user_intent(messages: list) -> str:
     if not messages:
