@@ -35,7 +35,7 @@ def get_user_greeting(profile: dict) -> str:
     if not name:
         name = profile.get("fullName", "there")
     headline = profile.get("headline") or profile.get("occupation") or "a professional"
-    return f"Hi {name}! 👋 I see you're working as {headline}. How can I help you today?"
+    return f"Hi {name}! 👋. How can I help you today?"
 
 def get_detailed_profile_context(profile: dict) -> str:
     fields = [
