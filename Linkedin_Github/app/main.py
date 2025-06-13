@@ -1,17 +1,14 @@
-"""
-Streamlit application for analyzing LinkedIn profiles using GPT with memory.
-"""
-
+# app/main.py
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from utils import scrape_linkedin_profile, get_user_greeting
-from nodes import chat_node, summarizer_node
+from app.utils import scrape_linkedin_profile, get_user_greeting
+from app.nodes import chat_node, summarizer_node
 from langgraph.graph import StateGraph, END
 
 load_dotenv()
 st.set_page_config(page_title="LinkedIn Analyzer", layout="centered")
-st.title("🔍 LinkedIn Analyzer")
+st.title("🔍 LinkedIn Analyzer with Memory")
 
 if "state" not in st.session_state:
     st.session_state.state = {
@@ -58,4 +55,3 @@ if user_input:
     result = graph.invoke(st.session_state.state)
     st.session_state.state = result
     st.rerun()
-
