@@ -8,7 +8,7 @@ from langgraph.graph import StateGraph, END
 
 load_dotenv()
 st.set_page_config(page_title="LinkedIn Analyzer", layout="centered")
-st.title("🔍 LinkedIn Analyzer")
+st.title("🔍 LinkedIn Analyzer with Memory")
 
 if "state" not in st.session_state:
     st.session_state.state = {
