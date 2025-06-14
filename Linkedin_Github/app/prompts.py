@@ -1,82 +1,74 @@
 from typing import Optional
+import re
 
 def build_profile_analysis_prompt(profile_context: str, job_description: Optional[str], summary_context: Optional[str], user_intent: str) -> str:
-    # Detect profile domain (tech vs non-tech)
-    profile_lower = profile_context.lower()
-    is_non_tech_profile = any(keyword in profile_lower for keyword in [
-        "public speaking", "nonprofit", "advocate", "trainer", "leadership speaker", "keynote", "productivity", "coach", "hall of fame", "communication expert"
-    ])
+    def extract_target_role(text: str) -> str:
+        match = re.search(r"(?:become a|roadmap to|grow into|transition to(?:wards)?) (.+)", text.lower())
+        return match.group(1).strip() if match else "the desired role"
+
+    target_role = extract_target_role(user_intent)
 
     prompt = (
         "You are an expert AI career coach helping users grow professionally using real LinkedIn profile data.\n"
-        "⚠️ Strictly use the provided profile data. Do NOT fabricate details such as roles, degrees, or experience.\n"
-        "🔁 Do NOT repeat any section or heading.\n"
-        "🎯 Base all advice on the user's actual industry and experience. Suggest CTO if appropriate, else CIO/CSO/CPO for leadership/public-speaking backgrounds.\n"
-        "🎯 Do NOT re-suggest certifications or skills already listed in the profile.\n\n"
+        "⚠️ Do NOT fabricate any details (like roles, degrees, or achievements).\n"
+        "✅ Base all recommendations strictly on the user's real experience, skills, and learning history.\n"
+        "🔁 Avoid repeating headings or content.\n"
+        "🎯 Use insights from the profile's actual certifications, current or past roles, academic background, and any public society or project work.\n\n"
     )
 
     if summary_context:
-        prompt += f"Conversation so far (summary):\n{summary_context}\n\n"
+        prompt += f"Conversation Summary:\n{summary_context}\n\n"
 
-    prompt += f"User's LinkedIn Profile Data:\n{profile_context}\n\n"
+    prompt += f"User’s LinkedIn Profile:\n{profile_context}\n\n"
+
     if job_description:
-        prompt += f"Target Job Description:\n{job_description}\n\n"
+        prompt += f"Job Description:\n{job_description}\n\n"
 
-    # Intent-specific branches
-    if "roadmap" in user_intent.lower() or "become" in user_intent.lower():
-        if is_non_tech_profile:
-            # Leadership/CIO/CSO-focused roadmap
-            prompt += (
-                "🎯 TASK: Generate a personalized C-level transition roadmap for a user from a **non-tech background**.\n"
-                "Instructions:\n"
-                "1. List current leadership and management experience.\n"
-                "2. Identify what technical and infrastructure gaps exist for transitioning into CTO/CIO/CSO roles.\n"
-                "3. Create a clear comparison table of strengths vs. missing elements.\n"
-                "4. Outline a timeline with short-, medium-, and long-term milestones.\n"
-                "5. Recommend learning paths and resources to fill the gaps.\n"
-                "6. ⚠️ Avoid repeating sections or suggesting what's already present.\n"
-            )
-        else:
-            # Tech profile: standard roadmap
-            prompt += (
-                "🎯 TASK: Create a structured roadmap to help the user grow into a CTO role.\n"
-                "Instructions:\n"
-                "1. Briefly summarize current skills and roles (once only).\n"
-                "2. Identify missing areas to reach CTO-level responsibility.\n"
-                "3. Suggest realistic milestones and timeline: short-, medium-, and long-term.\n"
-                "4. Recommend resources ONLY to fill actual gaps.\n"
-                "5. ⚠️ Avoid any repetition in headings or sections.\n"
-            )
-
-    elif "match" in user_intent.lower() or "fit" in user_intent.lower():
-        # 🎯 Job Fit Analysis — NEW ADDITION
+    # Dynamic intent routing
+    if "roadmap" in user_intent or "become" in user_intent or "transition" in user_intent:
         prompt += (
-            "🎯 TASK: Analyze how well the user's profile matches the target job description.\n"
+            f"🎯 TASK: Build a personalized roadmap for the user to become a successful {target_role.title()}.\n"
             "Instructions:\n"
-            "1. Identify and highlight key skills, experiences, or achievements that align with the job description.\n"
-            "2. Point out any mismatches, missing requirements, or gaps.\n"
-            "3. Provide a match score out of 100 based on fit.\n"
-            "4. Suggest improvements to help the user better align with the target role.\n"
-            "⚠️ Base all suggestions strictly on real profile content.\n"
+            "1. Start with a brief personalized overview of how their background (education, certifications, experience) aligns with this path.\n"
+            "2. Identify specific skills, tools, or roles they are missing.\n"
+            "3. Break the roadmap into Short (1–2 yrs), Medium (3–5 yrs), and Long-term (5–10 yrs) goals.\n"
+            "4. Recommend only relevant learning resources (do not suggest what they already have).\n"
+            "5. If applicable, relate current team or society roles to leadership development.\n"
         )
 
-    elif "improve" in user_intent.lower() and "experience" in user_intent.lower():
-        # 🎯 Improve Experience Descriptions
+    elif "match" in user_intent or "fit" in user_intent:
         prompt += (
-            "Improve the user's work experience descriptions based strictly on their real experience. "
-            "Do not invent achievements. Use professional, quantifiable language.\n"
+            "🎯 TASK: Assess the fit between the user's profile and the provided job description.\n"
+            "Instructions:\n"
+            "1. List key matched qualifications.\n"
+            "2. Highlight any critical gaps.\n"
+            "3. Provide a fit score (out of 100) and personalized improvement suggestions.\n"
         )
 
-    elif "what should i improve" in user_intent.lower() or "what do i need" in user_intent.lower():
-        # 🎯 Profile Gap Table
+    elif "improve" in user_intent and "experience" in user_intent:
         prompt += (
-            "Output a markdown table auditing each section of the profile:\n\n"
+            "🎯 TASK: Rewrite the user's work experience section to sound more professional and compelling.\n"
+            "Instructions:\n"
+            "- Use only real accomplishments from the profile.\n"
+            "- Keep it brief, result-oriented, and quantifiable when possible.\n"
+        )
+
+    elif "what should i improve" in user_intent or "what do i need" in user_intent:
+        prompt += (
+            "🎯 TASK: Audit the profile to identify missing or weak areas.\n"
+            "Instructions:\n"
+            "Provide a markdown table:\n"
             "| Section | Present | Quality | Suggestions |\n"
             "|---------|---------|---------|-------------|\n"
         )
 
     else:
-        # 🎯 General fallback advice
-        prompt += "Offer professional advice based only on the current LinkedIn profile.\n"
+        prompt += (
+            "🎯 TASK: Provide career guidance tailored to the user's current background and any goals implied.\n"
+            "Instructions:\n"
+            "- Suggest roles they might be well-suited for.\n"
+            "- Recommend certifications, skills, or strategic pivots.\n"
+            "- Make the advice specific and professional.\n"
+        )
 
     return prompt
