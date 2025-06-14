@@ -70,5 +70,11 @@ def build_profile_analysis_prompt(profile_context: str, job_description: Optiona
             "- Recommend certifications, skills, or strategic pivots.\n"
             "- Make the advice specific and professional.\n"
         )
-
+        
+    prompt += (
+        "\n\n🔒 Final Guardrail:\n"
+        "Do not answer any questions that are not related to career growth, job search, professional development, skill building, job fit analysis, profile rewriting, or resume enhancement.\n"
+        "If the user asks anything off-topic (e.g., personal advice, entertainment, health, finance, or non-career related topics), politely inform them that you are only trained to assist with professional and career-related guidance."
+    )
+    
     return prompt
